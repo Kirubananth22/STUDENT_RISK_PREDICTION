@@ -1,0 +1,30 @@
+ATTENDANCE vs MARKS
+  Attendance vs Marks (weighted course-work): Pearson r=-0.016 (p=0.105), Spearman rho=-0.017
+  Attendance vs Total_Score:                  Pearson r=-0.011 (p=0.281), Spearman rho=-0.011
+
+ATTENDANCE vs GRADE
+  Spearman rho (Attendance, Grade points) = +0.270; Kruskal-Wallis across grades p = 2.77e-181
+  Mean attendance by grade: A=80.0%, B=78.3%, C=71.7%, D=70.5%, F=71.3%
+  Share of students with grade D/F by attendance band: <60%=50.2%, 60-75%=38.0%, 75-90%=31.4%, 90-100%=18.9%
+
+OTHER PATTERNS
+  Features most correlated with Grade (abs Spearman): Attendance=+0.270, Marks=-0.026, Assignments_Avg=-0.024
+  Total_Score vs weighted Marks: Spearman rho = -0.007  -> Total_Score is NOT explained by the components
+  Total_Score by Grade (means): A=74.6, B=75.0, C=75.5, D=75.2, F=75.2
+  Test-prep course (0=no, 1=yes):
+                         Marks  Total_Score
+    test_preparation_course                    
+    0                        72.47        75.07
+    1                        72.11        74.96
+  By department:
+                  Attendance  Marks
+    Department                         
+    Business               75.06  72.36
+    Computer Science       74.87  72.28
+    Engineering            75.45  72.44
+    Mathematics            75.69  72.10
+  By gender:
+        Attendance  Marks
+    Gender                   
+    Female       75.08  72.32
+    Male         75.25  72.33

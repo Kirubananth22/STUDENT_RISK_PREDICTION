@@ -1,0 +1,30 @@
+1) ATTENDANCE vs FINAL-EXAM SCORE and TOTAL SCORE (numeric)
+   Final_Score  Pearson r=-0.012 (p=0.230)  Spearman rho=-0.012  slope=-0.014 points per +1% attendance  R^2=0.0001
+   Total_Score  Pearson r=-0.011 (p=0.281)  Spearman rho=-0.011  slope=-0.011 points per +1% attendance  R^2=0.0001
+   Marks        Pearson r=-0.016 (p=0.105)  Spearman rho=-0.017  slope=-0.009 points per +1% attendance  R^2=0.0003
+
+   Final_Score: attendance <75% mean=69.90 vs >=75% mean=69.76  (Welch t-test p=0.685)
+   Total_Score: attendance <75% mean=75.15 vs >=75% mean=74.91  (Welch t-test p=0.410)
+
+2) ATTENDANCE vs LETTER GRADE (categorical)
+   Spearman rho (attendance, grade points) = +0.270 (p=2.23e-166)
+   Kruskal-Wallis (attendance differs across grades) p = 2.77e-181
+   Mean attendance by grade: A=80.0%, B=78.3%, C=71.7%, D=70.5%, F=71.3%
+
+   Grade mix (% of students) by attendance band:
+Grade       A     B     C     D     F
+   Band                                 
+   <60%     17.3  10.8  21.6  27.4  22.8
+   60-75%   24.1  20.0  17.9  19.9  18.1
+   75-90%   31.3  21.4  15.9  15.9  15.5
+   90-100%  47.0  24.7   9.4   9.2   9.7
+   Chi-square test (band vs grade): chi2=829.9, p=6.34e-170
+   % of students earning A or B: <60%=28%, 60-75%=44%, 75-90%=53%, 90-100%=72%
+
+3) STEP-CHANGE (threshold) EFFECT. Best single split point for P(A or B): attendance = 85%
+   Outcome by attendance tier (median-imputed rows excluded):
+            students  pct_A_or_B  pct_D_or_F
+   Tier                                     
+   <60%         1921        28.1        50.2
+   60-85%       4912        43.7        38.0
+   85-100%      2962        71.6        19.0

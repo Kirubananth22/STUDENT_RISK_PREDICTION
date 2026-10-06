@@ -1,0 +1,209 @@
+
+==============================================================================
+STEP 2 - DATA CLEANING
+==============================================================================
+{
+  "rows_raw": 10030,
+  "duplicates_removed": 30,
+  "invalid_values_set_to_nan": {
+    "Age": 2,
+    "Attendance": 3,
+    "Midterm_Score": 2,
+    "Final_Score": 2
+  },
+  "missing_before_imputation": {
+    "Age": 202,
+    "Attendance": 202,
+    "Midterm_Score": 202,
+    "Final_Score": 202,
+    "Assignments_Avg": 200,
+    "Quizzes_Avg": 200,
+    "Participation_Score": 200,
+    "Projects_Score": 200,
+    "math_score": 1
+  },
+  "rows_clean": 10000
+}
+
+==============================================================================
+STEP 1 - DATA EXPLORATION
+==============================================================================
+ATTENDANCE vs MARKS
+  Attendance vs Marks (weighted course-work): Pearson r=-0.016 (p=0.105), Spearman rho=-0.017
+  Attendance vs Total_Score:                  Pearson r=-0.011 (p=0.281), Spearman rho=-0.011
+
+ATTENDANCE vs GRADE
+  Spearman rho (Attendance, Grade points) = +0.270; Kruskal-Wallis across grades p = 2.77e-181
+  Mean attendance by grade: A=80.0%, B=78.3%, C=71.7%, D=70.5%, F=71.3%
+  Share of students with grade D/F by attendance band: <60%=50.2%, 60-75%=38.0%, 75-90%=31.4%, 90-100%=18.9%
+
+OTHER PATTERNS
+  Features most correlated with Grade (abs Spearman): Attendance=+0.270, Marks=-0.026, Assignments_Avg=-0.024
+  Total_Score vs weighted Marks: Spearman rho = -0.007  -> Total_Score is NOT explained by the components
+  Total_Score by Grade (means): A=74.6, B=75.0, C=75.5, D=75.2, F=75.2
+  Test-prep course (0=no, 1=yes):
+                         Marks  Total_Score
+    test_preparation_course                    
+    0                        72.47        75.07
+    1                        72.11        74.96
+  By department:
+                  Attendance  Marks
+    Department                         
+    Business               75.06  72.36
+    Computer Science       74.87  72.28
+    Engineering            75.45  72.44
+    Mathematics            75.69  72.10
+  By gender:
+        Attendance  Marks
+    Gender                   
+    Female       75.08  72.32
+    Male         75.25  72.33
+
+==============================================================================
+STEP 1b - ATTENDANCE vs FINAL MARK (focused analysis)
+==============================================================================
+1) ATTENDANCE vs FINAL-EXAM SCORE and TOTAL SCORE (numeric)
+   Final_Score  Pearson r=-0.012 (p=0.230)  Spearman rho=-0.012  slope=-0.014 points per +1% attendance  R^2=0.0001
+   Total_Score  Pearson r=-0.011 (p=0.281)  Spearman rho=-0.011  slope=-0.011 points per +1% attendance  R^2=0.0001
+   Marks        Pearson r=-0.016 (p=0.105)  Spearman rho=-0.017  slope=-0.009 points per +1% attendance  R^2=0.0003
+
+   Final_Score: attendance <75% mean=69.90 vs >=75% mean=69.76  (Welch t-test p=0.685)
+   Total_Score: attendance <75% mean=75.15 vs >=75% mean=74.91  (Welch t-test p=0.410)
+
+2) ATTENDANCE vs LETTER GRADE (categorical)
+   Spearman rho (attendance, grade points) = +0.270 (p=2.23e-166)
+   Kruskal-Wallis (attendance differs across grades) p = 2.77e-181
+   Mean attendance by grade: A=80.0%, B=78.3%, C=71.7%, D=70.5%, F=71.3%
+
+   Grade mix (% of students) by attendance band:
+Grade       A     B     C     D     F
+   Band                                 
+   <60%     17.3  10.8  21.6  27.4  22.8
+   60-75%   24.1  20.0  17.9  19.9  18.1
+   75-90%   31.3  21.4  15.9  15.9  15.5
+   90-100%  47.0  24.7   9.4   9.2   9.7
+   Chi-square test (band vs grade): chi2=829.9, p=6.34e-170
+   % of students earning A or B: <60%=28%, 60-75%=44%, 75-90%=53%, 90-100%=72%
+
+3) STEP-CHANGE (threshold) EFFECT. Best single split point for P(A or B): attendance = 85%
+   Outcome by attendance tier (median-imputed rows excluded):
+            students  pct_A_or_B  pct_D_or_F
+   Tier                                     
+   <60%         1921        28.1        50.2
+   60-85%       4912        43.7        38.0
+   85-100%      2962        71.6        19.0
+
+==============================================================================
+STEP 3 - RISK LABELS (rule-based criteria)
+==============================================================================
+        students  share
+Risk                   
+Low         4097  0.410
+Medium      4240  0.424
+High        1663  0.166
+
+==============================================================================
+STEP 3 - FEATURE SELECTION & MODEL COMPARISON
+==============================================================================
+Importance ranking (training split):
+ Attendance                 0.444
+Marks                      0.112
+Final_Score                0.056
+Midterm_Score              0.052
+Projects_Score             0.044
+Assignments_Avg            0.043
+Quizzes_Avg                0.043
+Participation_Score        0.040
+math_score                 0.038
+writing_score              0.036
+science_score              0.035
+reading_score              0.034
+Age                        0.018
+test_preparation_course    0.005
+
+Selected 2 features (importance >= mean): ['Attendance', 'Marks']
+
+5-fold CV on training data:
+                     Model  accuracy  precision  recall    f1  f1_std
+        Gradient Boosting     0.654      0.652   0.640 0.645   0.013
+            Random Forest     0.623      0.606   0.663 0.619   0.013
+            Decision Tree     0.622      0.607   0.688 0.614   0.012
+      Logistic Regression     0.607      0.592   0.651 0.607   0.008
+Baseline (majority class)     0.424      0.141   0.333 0.199   0.000
+
+==============================================================================
+STEP 4 - EVALUATION OF 'Gradient Boosting' ON HELD-OUT TEST SET
+==============================================================================
+              precision    recall  f1-score   support
+
+         Low      0.710     0.748     0.729       819
+      Medium      0.589     0.575     0.582       848
+        High      0.643     0.595     0.618       333
+
+    accuracy                          0.649      2000
+   macro avg      0.647     0.640     0.643      2000
+weighted avg      0.648     0.649     0.648      2000
+
+Accuracy=0.649  Macro-Precision=0.647  Macro-Recall=0.640  Macro-F1=0.643
+Confusion matrix (rows=actual, cols=predicted; order Low/Medium/High):
+        Low  Medium  High
+Low     613     206     0
+Medium  250     488   110
+High      0     135   198
+
+Permutation importance:
+ Attendance    0.2784
+Marks         0.0771
+
+==============================================================================
+SANITY CHECK - CAN WE PREDICT ACTUAL FAILURE (GRADE D/F)?
+==============================================================================
+{
+  "share_DF": 0.3452,
+  "attendance_only_auc": 0.6327369894406587,
+  "all_features_logreg_auc": 0.6312517365658475,
+  "all_features_rf_auc": 0.6398744571458519
+}
+
+==============================================================================
+STEP 5 - SAMPLE PREDICTIONS
+==============================================================================
+Student: S1000 (Omar Williams)
+Attendance: 52%
+Marks: 68
+Risk: HIGH
+
+Recommendation:
+Improve attendance and focus on upcoming assessments. Give extra practice to the midterm material (current average 55). Meet an academic adviser this week to agree a support plan. 
+----------------------------------------
+Student: S1002 (Ahmed Jones)
+Attendance: 57%
+Marks: 78
+Risk: MEDIUM
+
+Recommendation:
+Improve attendance. Check progress with the course mentor after the next assessment. 
+----------------------------------------
+Student: S1001 (Maria Brown)
+Attendance: 97%
+Marks: 70
+Risk: LOW
+
+Recommendation:
+Keep up the good work and maintain current attendance and assessment performance. Optional tip: give extra practice to final-exam preparation (current average 46). 
+----------------------------------------
+
+==============================================================================
+STEP 6 - AUTOMATED REPORT
+==============================================================================
+Student_ID  Attendance Risk                                                                                                                                                                                    Recommendation
+     S1336        50.0 High Improve attendance. Give extra practice to final-exam preparation (current average 52). Take part more actively in class discussions. Meet an academic adviser this week to agree a support plan.
+     S1964        50.0 High                                                              Improve attendance. Give extra practice to quizzes (current average 62). Meet an academic adviser this week to agree a support plan.
+     S3755        50.0 High                                                                                                                   Improve attendance. Meet an academic adviser this week to agree a support plan.
+     S4281        50.0 High                                                 Improve attendance. Give extra practice to the midterm material (current average 48). Meet an academic adviser this week to agree a support plan.
+     S8380        50.0 High             Improve attendance and focus on upcoming assessments. Give extra practice to final-exam preparation (current average 52). Meet an academic adviser this week to agree a support plan.
+     S8917        50.0 High             Improve attendance and focus on upcoming assessments. Give extra practice to final-exam preparation (current average 46). Meet an academic adviser this week to agree a support plan.
+     S5144        50.1 High                                                          Improve attendance. Give extra practice to assignments (current average 60). Meet an academic adviser this week to agree a support plan.
+     S5588        50.1 High             Improve attendance and focus on upcoming assessments. Give extra practice to final-exam preparation (current average 49). Meet an academic adviser this week to agree a support plan.
+
+Saved full report (10,000 students) to /home/claude/student-risk-prediction/outputs/reports

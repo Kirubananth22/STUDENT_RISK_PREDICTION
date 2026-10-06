@@ -1,0 +1,22 @@
+{
+  "rows_raw": 10030,
+  "duplicates_removed": 30,
+  "invalid_values_set_to_nan": {
+    "Age": 2,
+    "Attendance": 3,
+    "Midterm_Score": 2,
+    "Final_Score": 2
+  },
+  "missing_before_imputation": {
+    "Age": 202,
+    "Attendance": 202,
+    "Midterm_Score": 202,
+    "Final_Score": 202,
+    "Assignments_Avg": 200,
+    "Quizzes_Avg": 200,
+    "Participation_Score": 200,
+    "Projects_Score": 200,
+    "math_score": 1
+  },
+  "rows_clean": 10000
+}
